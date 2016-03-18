@@ -1,6 +1,7 @@
 package in.jedimaster.demo.dao;
 
 import in.jedimaster.demo.model.Branch;
+import org.apache.log4j.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +14,9 @@ import java.util.List;
  */
 public class PostgresBankDataDao implements BankDataDao {
 
-    private static Connection getConnection() {
+    private static final Logger logger = Logger.getLogger(PostgresBankDataDao.class);
+
+    private Connection getConnection() {
         URI dbUri = null;
         try {
             dbUri = new URI(System.getenv("DATABASE_URL"));
@@ -51,7 +54,7 @@ public class PostgresBankDataDao implements BankDataDao {
         List<Branch> branches = executeQuery("select B.id, BR.ifsc, BR.branch, BR.address, BR.city, BR.district, BR.state, B.name " +
                 "from banks B, branches BR where B.id = BR.bank_id and BR.ifsc = ?", ifsc);
         if (branches.size() > 1) {
-            // TODO: log a warning
+            logger.warn("More than one record found for ifsc=" + ifsc);
         }
         return (branches.isEmpty()) ? null : branches.get(0);
     }
@@ -88,7 +91,7 @@ public class PostgresBankDataDao implements BankDataDao {
                 try {
                     connection.close();
                 } catch (SQLException cause) {
-                    // TODO: log an error may be?
+                    logger.error("Unable to close db conn", cause);
                 }
             }
         }
