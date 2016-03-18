@@ -1,5 +1,0 @@
-server:
-  gzip:
-    enabled: true
-    minimumEntitySize: 256B
-    bufferSize: 8KB
