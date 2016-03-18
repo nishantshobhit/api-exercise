@@ -55,7 +55,7 @@ public class InMemoryBankDataDao implements BankDataDao {
         settings.getFormat().setLineSeparator("\n");
         CsvParser parser = new CsvParser(settings);
         parser.beginParsing(InMemoryBankDataDao.class.getClassLoader().getResourceAsStream(BANK_BRANCH_CSV_FILE));
-        String[] row;
+        String[] row = parser.parseNext(); // ignores the first row
         while ((row = parser.parseNext()) != null) {
             Branch branch = getBranch(row);
             ifscToBranch.put(branch.getIfsc(), branch);
