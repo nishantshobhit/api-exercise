@@ -5,6 +5,7 @@ import in.jedimaster.demo.model.Branch;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,36 +36,51 @@ public class PostgresBankDataDao implements BankDataDao {
 
     @Override
     public List<Branch> listBranches(String bankName) {
-        return null;
+        return executeQuery("select B.id, BR.ifsc, BR.branch, BR.address, BR.city, BR.district, BR.state, B.name " +
+                "from banks B, branches BR where B.id = BR.bank_id and B.name = ?", bankName);
     }
 
     @Override
     public List<Branch> getBranch(String bankName, String city) {
-        return null;
+        return executeQuery("select B.id, BR.ifsc, BR.branch, BR.address, BR.city, BR.district, BR.state, B.name " +
+                "from banks B, branches BR where B.id = BR.bank_id and B.name = ? and BR.city = ?", bankName, city);
     }
 
     @Override
     public Branch getBranchByIfsc(String ifsc) {
-        if (ifsc == null || "".equals(ifsc)) {
-            return null;
+        List<Branch> branches = executeQuery("select B.id, BR.ifsc, BR.branch, BR.address, BR.city, BR.district, BR.state, B.name " +
+                "from banks B, branches BR where B.id = BR.bank_id and BR.ifsc = ?", ifsc);
+        if (branches.size() > 1) {
+            // TODO: log a warning
         }
+        return (branches.isEmpty()) ? null : branches.get(0);
+    }
+
+    protected List<Branch> executeQuery(String query, String...args) {
         Connection connection = null;
         try {
             connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("select bank_id, branch, address, city, " +
-                    "district, state from branches where ifsc = ?");
-            statement.setString(1, ifsc);
+            PreparedStatement statement = connection.prepareStatement(query);
+            if (args != null && args.length > 0) {
+                for (int i=0; i<args.length; i++) {
+                    statement.setString(i+1, args[i]);
+                }
+            }
             ResultSet result = statement.executeQuery();
+            List<Branch> branches = new ArrayList<>();
             while (result.next()) {
                 Branch.Builder builder = new Branch.Builder();
-                builder.bankId(result.getLong("bank_id"))
+                builder.bankId(result.getLong("id"))
+                        .ifsc(result.getString("ifsc"))
                         .branch(result.getString("branch"))
                         .addr(result.getString("address"))
                         .city(result.getString("city"))
                         .district(result.getString("district"))
-                        .state(result.getString("state"));
-                return builder.build();
+                        .state(result.getString("state"))
+                        .bankName(result.getString("name"));
+                branches.add(builder.build());
             }
+            return branches;
         } catch (SQLException cause) {
             throw new RuntimeException("unable to execute query", cause);
         } finally {
@@ -72,10 +88,9 @@ public class PostgresBankDataDao implements BankDataDao {
                 try {
                     connection.close();
                 } catch (SQLException cause) {
-                    // log an error may be?
+                    // TODO: log an error may be?
                 }
             }
         }
-        return null;
     }
 }
