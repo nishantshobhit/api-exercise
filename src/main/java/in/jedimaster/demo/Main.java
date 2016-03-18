@@ -2,6 +2,8 @@ package in.jedimaster.demo;
 
 import in.jedimaster.demo.resources.BankResource;
 import io.dropwizard.Application;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -21,7 +23,12 @@ public class Main extends Application<AppConfiguration> {
 
     @Override
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
-
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(
+                        bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor()
+                )
+        );
     }
 
     @Override
