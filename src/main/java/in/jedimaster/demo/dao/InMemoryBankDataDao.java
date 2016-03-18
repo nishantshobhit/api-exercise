@@ -75,7 +75,7 @@ public class InMemoryBankDataDao implements BankDataDao {
     protected Branch getBranch(String[] row) {
         Branch.Builder builder = new Branch.Builder();
         builder.ifsc(row[0])
-                .bankId(row[1])
+                .bankId(Long.parseLong(row[1]))
                 .branch(row[2])
                 .addr(row[3])
                 .city(row[4])

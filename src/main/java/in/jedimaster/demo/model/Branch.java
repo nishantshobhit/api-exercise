@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Branch {
 
+    private long bankId;
     private String ifsc;
-    private String bankId;
     private String branch;
     private String addr;
     private String city;
@@ -27,7 +27,7 @@ public class Branch {
             return this;
         }
 
-        public Builder bankId(String bankId) {
+        public Builder bankId(long bankId) {
             ins.bankId = bankId;
             return this;
         }
@@ -74,7 +74,7 @@ public class Branch {
     }
 
     @JsonProperty
-    public String getBankId() {
+    public long getBankId() {
         return bankId;
     }
 

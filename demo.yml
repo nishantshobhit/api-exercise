@@ -2,3 +2,7 @@ server:
   applicationConnectors:
   - type: http
     port: ${PORT}
+  gzip:
+    enabled: true
+    minimumEntitySize: 256B
+    bufferSize: 16KB
