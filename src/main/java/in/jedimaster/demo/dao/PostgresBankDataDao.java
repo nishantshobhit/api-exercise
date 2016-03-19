@@ -16,6 +16,7 @@ public class PostgresBankDataDao implements BankDataDao {
 
     private static final Logger logger = Logger.getLogger(PostgresBankDataDao.class);
 
+    //TODO: use a connection pool. one-connection per query does not scale
     private Connection getConnection() {
         URI dbUri = null;
         try {
@@ -59,6 +60,15 @@ public class PostgresBankDataDao implements BankDataDao {
         return (branches.isEmpty()) ? null : branches.get(0);
     }
 
+    /**
+     * Builds a list of branch objects from raw jdbc result set. It is required for the
+     * result set to contain the following fields
+     *
+     * id, ifsc, branch, address, city, district, state, name
+     *
+     * TODO: either name it more robust or use an object mapping framework like JDBI
+     *
+     */
     protected List<Branch> executeQuery(String query, String...args) {
         Connection connection = null;
         try {
